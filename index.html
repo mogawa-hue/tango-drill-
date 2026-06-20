@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英単語ドリル｜中学1年生</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Inter:wght@400;500;600&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F7F6F2; --surface: #FFFFFF; --border: #E4E2DA;
+    --text-primary: #1A1A18; --text-secondary: #6B6A64; --text-hint: #A8A69E;
+    --green: #1D8A5E; --green-light: #E8F5EF; --green-border: #A8D9BF;
+    --orange: #C85C1E; --orange-light: #FDF0E8; --orange-border: #F0C09A;
+    --accent: #3B6FE8; --accent-light: #EEF3FD; --highlight: #0F6A44;
+  }
+  body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 0 16px 60px; }
+  header { width: 100%; max-width: 560px; padding: 28px 0 20px; display: flex; align-items: baseline; gap: 10px; }
+  header h1 { font-family: 'Inter', sans-serif; font-size: 20px; font-weight: 600; letter-spacing: -0.02em; color: var(--text-primary); }
+  header .sub { font-size: 12px; color: var(--text-hint); font-weight: 400; }
+  .main { width: 100%; max-width: 560px; }
+  .score-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .score-pill { background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: 5px 14px; font-size: 13px; color: var(--text-secondary); }
+  .score-pill strong { color: var(--text-primary); font-weight: 600; }
+  .count-label { font-size: 12px; color: var(--text-hint); }
+  .prog-track { height: 3px; background: var(--border); border-radius: 99px; margin-bottom: 20px; overflow: hidden; }
+  .prog-fill { height: 100%; background: var(--green); border-radius: 99px; transition: width 0.4s cubic-bezier(.4,0,.2,1); width: 0%; }
+  .mode-bar { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 3px; margin-bottom: 12px; gap: 3px; }
+  .mode-btn { flex: 1; border: none; background: transparent; border-radius: 8px; padding: 8px 6px; font-size: 13px; font-family: 'Noto Sans JP', sans-serif; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; font-weight: 400; }
+  .mode-btn.active { background: var(--text-primary); color: #fff; font-weight: 500; }
+  .cat-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+  .cat-btn { border: 1px solid var(--border); background: var(--surface); border-radius: 99px; padding: 5px 13px; font-size: 12px; font-family: 'Noto Sans JP', sans-serif; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; }
+  .cat-btn.active { border-color: var(--accent); background: var(--accent-light); color: var(--accent); font-weight: 500; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 36px 28px 28px; margin-bottom: 14px; min-height: 220px; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; }
+  .card-num { position: absolute; top: 14px; right: 18px; font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text-hint); }
+  .card-label { font-size: 11px; letter-spacing: 0.1em; color: var(--text-hint); text-transform: uppercase; margin-bottom: 16px; }
+  .card-word { font-family: 'Inter', sans-serif; font-size: 40px; font-weight: 600; letter-spacing: -0.03em; color: var(--text-primary); line-height: 1.1; margin-bottom: 16px; }
+  .card-word.ja { font-family: 'Noto Sans JP', sans-serif; font-size: 30px; letter-spacing: 0; }
+  .card-ex-en { font-family: 'Inter', sans-serif; font-size: 15px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 4px; }
+  .card-ex-en em { font-style: normal; color: var(--highlight); font-weight: 600; border-bottom: 1.5px solid var(--green-border); padding-bottom: 1px; }
+  .card-ex-ja { font-size: 12px; color: var(--text-hint); line-height: 1.6; margin-top: 4px; }
+  .ans-divider { width: 40px; height: 1px; background: var(--border); margin: 20px auto 16px; }
+  .ans-main { font-size: 26px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+  .ans-main.en { font-family: 'Inter', sans-serif; letter-spacing: -0.02em; }
+  .ans-kana { font-size: 14px; color: var(--text-secondary); margin-bottom: 8px; letter-spacing: 0.05em; }
+  .ans-ex { font-family: 'Inter', sans-serif; font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+  .ans-ex em { font-style: normal; color: var(--highlight); font-weight: 600; border-bottom: 1.5px solid var(--green-border); padding-bottom: 1px; }
+  .btn-area { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; }
+  .btn { border: 1px solid var(--border); background: var(--surface); border-radius: 10px; padding: 11px 28px; font-size: 14px; font-family: 'Noto Sans JP', sans-serif; color: var(--text-primary); cursor: pointer; font-weight: 500; transition: all 0.15s; }
+  .btn:hover { background: var(--bg); }
+  .btn:active { transform: scale(0.97); }
+  .btn-show { background: var(--text-primary); color: #fff; border-color: var(--text-primary); padding: 11px 40px; }
+  .btn-show:hover { opacity: 0.88; background: var(--text-primary); }
+  .btn-ok { border-color: var(--green-border); background: var(--green-light); color: var(--green); }
+  .btn-ng { border-color: var(--orange-border); background: var(--orange-light); color: var(--orange); }
+  .result { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 40px 28px; text-align: center; margin-bottom: 14px; }
+  .result-num { font-family: 'Inter', sans-serif; font-size: 64px; font-weight: 600; letter-spacing: -0.04em; color: var(--text-primary); line-height: 1; margin-bottom: 8px; }
+  .result-denom { font-size: 18px; color: var(--text-hint); }
+  .result-bar { height: 6px; background: var(--bg); border-radius: 99px; margin: 20px 0; overflow: hidden; }
+  .result-fill { height: 100%; background: var(--green); border-radius: 99px; transition: width 0.8s cubic-bezier(.4,0,.2,1); }
+  .result-msg { font-size: 15px; color: var(--text-secondary); margin-bottom: 28px; line-height: 1.6; }
+  .hidden { display: none !important; }
+  @media (max-width: 400px) { .card-word { font-size: 32px; } .btn { padding: 10px 18px; font-size: 13px; } }
+</style>
+</head>
+<body>
+<header><h1>英単語ドリル</h1><span class="sub">中学1年生</span></header>
+<main class="main">
+  <div class="score-row">
+    <div class="score-pill">正解 <strong id="ok">0</strong> / <strong id="tot">0</strong></div>
+    <div class="count-label" id="remaining"></div>
+  </div>
+  <div class="prog-track"><div class="prog-fill" id="prog"></div></div>
+  <div class="mode-bar">
+    <button class="mode-btn active" id="m-en" onclick="setMode('en')">英語 → 日本語</button>
+    <button class="mode-btn" id="m-ja" onclick="setMode('ja')">日本語 → 英語</button>
+  </div>
+  <div class="cat-bar" id="cat-bar"></div>
+  <div class="card" id="card">
+    <div class="card-num" id="card-num"></div>
+    <div class="card-label" id="c-label"></div>
+    <div class="card-word" id="c-word"></div>
+    <div class="ans-kana hidden" id="kana-word"></div>
+    <div class="card-ex-en" id="c-ex-en"></div>
+    <div class="ans-kana hidden" id="kana-ex"></div>
+    <div class="card-ex-ja hidden" id="c-ex-ja"></div>
+    <div class="hidden" id="ans-block">
+      <div class="ans-divider"></div>
+      <div class="ans-main" id="ans-main"></div>
+      <div class="ans-ex" id="ans-ex"></div>
+    </div>
+  </div>
+  <div class="btn-area" id="show-row">
+    <button class="btn btn-show" onclick="showAns()">答えを見る</button>
+  </div>
+  <div class="btn-area hidden" id="judge-row">
+    <button class="btn btn-ng" onclick="judge(false)">わからなかった</button>
+    <button class="btn btn-ok" onclick="judge(true)">覚えていた！</button>
+  </div>
+  <div class="result hidden" id="result">
+    <div class="result-num"><span id="res-ok"></span><span class="result-denom"> / <span id="res-tot"></span></span></div>
+    <div class="result-bar"><div class="result-fill" id="res-fill"></div></div>
+    <div class="result-msg" id="res-msg"></div>
+    <div class="btn-area" style="justify-content:center;">
+      <button class="btn" onclick="restart()">もう一度</button>
+      <button class="btn" onclick="nextCat()">次のカテゴリへ</button>
+    </div>
+  </div>
+</main>
+<script>
+const DB = {
+  daily: [
+    {en:"good",kana:"グッド",ja:"よい・上手な",ex:'She is a <em>good</em> singer.',ex_ja:"彼女は歌が上手です。",ex_kana:"シー・イズ・ア・グッド・シンガー"},
+    {en:"friend",kana:"フレンド",ja:"友だち",ex:'He is my best <em>friend</em>.',ex_ja:"彼は私の親友です。",ex_kana:"ヒー・イズ・マイ・ベスト・フレンド"},
+    {en:"name",kana:"ネーム",ja:"名前",ex:'My <em>name</em> is Shotaro.',ex_ja:"私の名前は翔太朗です。",ex_kana:"マイ・ネーム・イズ・ショウタロウ"},
+    {en:"like",kana:"ライク",ja:"好きである",ex:'I <em>like</em> music.',ex_ja:"私は音楽が好きです。",ex_kana:"アイ・ライク・ミュージック"},
+    {en:"live",kana:"リブ",ja:"住んでいる",ex:'I <em>live</em> in Kochi.',ex_ja:"私は高知に住んでいます。",ex_kana:"アイ・リブ・イン・コウチ"},
+    {en:"family",kana:"ファミリー",ja:"家族",ex:'My <em>family</em> is small.',ex_ja:"私の家族は小さいです。",ex_kana:"マイ・ファミリー・イズ・スモール"},
+    {en:"every",kana:"エブリ",ja:"毎〜・すべての",ex:'I study <em>every</em> day.',ex_ja:"私は毎日勉強します。",ex_kana:"アイ・スタディ・エブリ・デイ"},
+    {en:"want",kana:"ウォント",ja:"〜がほしい",ex:'I <em>want</em> a new bike.',ex_ja:"私は新しい自転車がほしいです。",ex_kana:"アイ・ウォント・ア・ニュー・バイク"},
+    {en:"know",kana:"ノウ",ja:"知っている",ex:'Do you <em>know</em> her?',ex_ja:"あなたは彼女を知っていますか？",ex_kana:"ドゥー・ユー・ノウ・ハー"},
+    {en:"think",kana:"シンク",ja:"〜と思う",ex:'I <em>think</em> it is easy.',ex_ja:"私はそれは簡単だと思います。",ex_kana:"アイ・シンク・イット・イズ・イージー"},
+  ],
+  school: [
+    {en:"study",kana:"スタディ",ja:"勉強する",ex:'I <em>study</em> English.',ex_ja:"私は英語を勉強します。",ex_kana:"アイ・スタディ・イングリッシュ"},
+    {en:"class",kana:"クラス",ja:"授業・クラス",ex:'I have an English <em>class</em> today.',ex_ja:"今日は英語の授業があります。",ex_kana:"アイ・ハブ・アン・イングリッシュ・クラス・トゥデイ"},
+    {en:"teacher",kana:"ティーチャー",ja:"先生",ex:'My <em>teacher</em> is kind.',ex_ja:"私の先生は親切です。",ex_kana:"マイ・ティーチャー・イズ・カインド"},
+    {en:"book",kana:"ブック",ja:"本",ex:'I read this <em>book</em>.',ex_ja:"私はこの本を読みます。",ex_kana:"アイ・リード・ディス・ブック"},
+    {en:"write",kana:"ライト",ja:"書く",ex:'Please <em>write</em> your name.',ex_ja:"あなたの名前を書いてください。",ex_kana:"プリーズ・ライト・ユア・ネーム"},
+    {en:"read",kana:"リード",ja:"読む",ex:'I <em>read</em> books every night.',ex_ja:"私は毎晩本を読みます。",ex_kana:"アイ・リード・ブックス・エブリ・ナイト"},
+    {en:"answer",kana:"アンサー",ja:"答え・答える",ex:'Please <em>answer</em> the question.',ex_ja:"その質問に答えてください。",ex_kana:"プリーズ・アンサー・ザ・クエスチョン"},
+    {en:"question",kana:"クエスチョン",ja:"質問",ex:'I have a <em>question</em>.',ex_ja:"質問があります。",ex_kana:"アイ・ハブ・ア・クエスチョン"},
+    {en:"test",kana:"テスト",ja:"テスト",ex:'We have a <em>test</em> tomorrow.',ex_ja:"明日テストがあります。",ex_kana:"ウィー・ハブ・ア・テスト・トゥモロウ"},
+    {en:"subject",kana:"サブジェクト",ja:"教科・科目",ex:'Math is my favorite <em>subject</em>.',ex_ja:"数学は私の好きな科目です。",ex_kana:"マス・イズ・マイ・フェイバリット・サブジェクト"},
+  ],
+  nature: [
+    {en:"animal",kana:"アニマル",ja:"動物",ex:'I like every <em>animal</em>.',ex_ja:"私はすべての動物が好きです。",ex_kana:"アイ・ライク・エブリ・アニマル"},
+    {en:"dog",kana:"ドッグ",ja:"犬",ex:'I have a <em>dog</em>.',ex_ja:"私は犬を飼っています。",ex_kana:"アイ・ハブ・ア・ドッグ"},
+    {en:"cat",kana:"キャット",ja:"猫",ex:'That <em>cat</em> is cute.',ex_ja:"あの猫はかわいいです。",ex_kana:"ザット・キャット・イズ・キュート"},
+    {en:"flower",kana:"フラワー",ja:"花",ex:'This <em>flower</em> is beautiful.',ex_ja:"この花は美しいです。",ex_kana:"ディス・フラワー・イズ・ビューティフル"},
+    {en:"river",kana:"リバー",ja:"川",ex:'We swim in the <em>river</em>.',ex_ja:"私たちは川で泳ぎます。",ex_kana:"ウィー・スウィム・イン・ザ・リバー"},
+    {en:"mountain",kana:"マウンテン",ja:"山",ex:'That <em>mountain</em> is very high.',ex_ja:"あの山はとても高いです。",ex_kana:"ザット・マウンテン・イズ・ベリー・ハイ"},
+    {en:"sea",kana:"スィー",ja:"海",ex:'I love the <em>sea</em>.',ex_ja:"私は海が大好きです。",ex_kana:"アイ・ラブ・ザ・スィー"},
+    {en:"sky",kana:"スカイ",ja:"空",ex:'The <em>sky</em> is blue today.',ex_ja:"今日の空は青いです。",ex_kana:"ザ・スカイ・イズ・ブルー・トゥデイ"},
+    {en:"tree",kana:"トゥリー",ja:"木",ex:'A bird is in the <em>tree</em>.',ex_ja:"鳥が木にいます。",ex_kana:"ア・バード・イズ・イン・ザ・トゥリー"},
+    {en:"fish",kana:"フィッシュ",ja:"魚",ex:'I can see many <em>fish</em> here.',ex_ja:"ここにはたくさんの魚が見えます。",ex_kana:"アイ・キャン・スィー・メニー・フィッシュ・ヒア"},
+  ],
+  food: [
+    {en:"eat",kana:"イート",ja:"食べる",ex:'I <em>eat</em> rice every day.',ex_ja:"私は毎日ご飯を食べます。",ex_kana:"アイ・イート・ライス・エブリ・デイ"},
+    {en:"drink",kana:"ドリンク",ja:"飲む",ex:'I <em>drink</em> milk in the morning.',ex_ja:"私は朝ミルクを飲みます。",ex_kana:"アイ・ドリンク・ミルク・イン・ザ・モーニング"},
+    {en:"lunch",kana:"ランチ",ja:"昼食",ex:'I eat <em>lunch</em> at school.',ex_ja:"私は学校で昼食を食べます。",ex_kana:"アイ・イート・ランチ・アット・スクール"},
+    {en:"breakfast",kana:"ブレックファスト",ja:"朝食",ex:'I have <em>breakfast</em> at seven.',ex_ja:"私は7時に朝食を食べます。",ex_kana:"アイ・ハブ・ブレックファスト・アット・セブン"},
+    {en:"dinner",kana:"ディナー",ja:"夕食",ex:'We have <em>dinner</em> together.',ex_ja:"私たちは一緒に夕食を食べます。",ex_kana:"ウィー・ハブ・ディナー・トゥゲザー"},
+    {en:"fruit",kana:"フルーツ",ja:"果物",ex:'I like this <em>fruit</em>.',ex_ja:"私はこの果物が好きです。",ex_kana:"アイ・ライク・ディス・フルーツ"},
+    {en:"bread",kana:"ブレッド",ja:"パン",ex:'I eat <em>bread</em> for breakfast.',ex_ja:"私は朝食にパンを食べます。",ex_kana:"アイ・イート・ブレッド・フォー・ブレックファスト"},
+    {en:"cook",kana:"クック",ja:"料理する",ex:'My mother can <em>cook</em> well.',ex_ja:"私のお母さんは料理が上手です。",ex_kana:"マイ・マザー・キャン・クック・ウェル"},
+    {en:"hungry",kana:"ハングリー",ja:"お腹がすいた",ex:'I am very <em>hungry</em> now.',ex_ja:"私は今とてもお腹がすいています。",ex_kana:"アイ・アム・ベリー・ハングリー・ナウ"},
+    {en:"delicious",kana:"デリシャス",ja:"おいしい",ex:'This cake is <em>delicious</em>!',ex_ja:"このケーキはおいしい！",ex_kana:"ディス・ケイク・イズ・デリシャス"},
+  ],
+  body: [
+    {en:"swim",kana:"スウィム",ja:"泳ぐ",ex:'I can <em>swim</em> fast.',ex_ja:"私は速く泳ぐことができます。",ex_kana:"アイ・キャン・スウィム・ファスト"},
+    {en:"run",kana:"ラン",ja:"走る",ex:'I <em>run</em> every morning.',ex_ja:"私は毎朝走ります。",ex_kana:"アイ・ラン・エブリ・モーニング"},
+    {en:"play",kana:"プレイ",ja:"（スポーツを）する",ex:'I <em>play</em> soccer on Sunday.',ex_ja:"私は日曜日にサッカーをします。",ex_kana:"アイ・プレイ・サッカー・オン・サンデイ"},
+    {en:"strong",kana:"ストロング",ja:"強い・丈夫な",ex:'He is very <em>strong</em>.',ex_ja:"彼はとても強いです。",ex_kana:"ヒー・イズ・ベリー・ストロング"},
+    {en:"fast",kana:"ファスト",ja:"速い・速く",ex:'She can run <em>fast</em>.',ex_ja:"彼女は速く走れます。",ex_kana:"シー・キャン・ラン・ファスト"},
+    {en:"tired",kana:"タイアード",ja:"疲れた",ex:'I am very <em>tired</em> today.',ex_ja:"私は今日とても疲れています。",ex_kana:"アイ・アム・ベリー・タイアード・トゥデイ"},
+    {en:"sport",kana:"スポーツ",ja:"スポーツ",ex:'I enjoy <em>sport</em> every day.',ex_ja:"私は毎日スポーツを楽しみます。",ex_kana:"アイ・エンジョイ・スポーツ・エブリ・デイ"},
+    {en:"team",kana:"チーム",ja:"チーム",ex:'I am on the swim <em>team</em>.',ex_ja:"私は水泳チームに入っています。",ex_kana:"アイ・アム・オン・ザ・スウィム・チーム"},
+    {en:"practice",kana:"プラクティス",ja:"練習する",ex:'I <em>practice</em> swimming hard.',ex_ja:"私は熱心に水泳の練習をします。",ex_kana:"アイ・プラクティス・スウィミング・ハード"},
+    {en:"health",kana:"ヘルス",ja:"健康",ex:'<em>Health</em> is very important.',ex_ja:"健康はとても大切です。",ex_kana:"ヘルス・イズ・ベリー・インポータント"},
+  ],
+};
+
+const CATS = [
+  {id:'daily', label:'日常・自己紹介'},
+  {id:'school', label:'学校・授業'},
+  {id:'nature', label:'自然・動物'},
+  {id:'food',   label:'食べ物・飲み物'},
+  {id:'body',   label:'体・スポーツ'},
+];
+
+let cat='daily', words=[], idx=0, okCount=0, mode='en';
+
+function setMode(m){
+  mode=m;
+  document.getElementById('m-en').classList.toggle('active',m==='en');
+  document.getElementById('m-ja').classList.toggle('active',m==='ja');
+  startCat(cat);
+}
+
+function buildCats(){
+  const bar=document.getElementById('cat-bar');
+  bar.innerHTML='';
+  CATS.forEach(c=>{
+    const b=document.createElement('button');
+    b.className='cat-btn'+(c.id===cat?' active':'');
+    b.textContent=c.label;
+    b.onclick=()=>startCat(c.id);
+    bar.appendChild(b);
+  });
+}
+
+function startCat(id){
+  cat=id;
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+  const i=CATS.findIndex(c=>c.id===id);
+  document.querySelectorAll('.cat-btn')[i]?.classList.add('active');
+  words=[...DB[id]].sort(()=>Math.random()-0.5);
+  idx=0; okCount=0;
+  document.getElementById('ok').textContent=0;
+  document.getElementById('tot').textContent=0;
+  document.getElementById('prog').style.width='0%';
+  document.getElementById('result').classList.add('hidden');
+  document.getElementById('card').classList.remove('hidden');
+  renderCard();
+}
+
+function renderCard(){
+  const w=words[idx];
+  const total=words.length;
+  document.getElementById('card-num').textContent=(idx+1)+' / '+total;
+  document.getElementById('remaining').textContent='残り '+(total-idx)+' 問';
+  document.getElementById('ans-block').classList.add('hidden');
+  document.getElementById('c-ex-ja').classList.add('hidden');
+  document.getElementById('kana-word').classList.add('hidden');
+  document.getElementById('kana-ex').classList.add('hidden');
+  document.getElementById('show-row').classList.remove('hidden');
+  document.getElementById('judge-row').classList.add('hidden');
+  document.getElementById('result').classList.add('hidden');
+  document.getElementById('card').classList.remove('hidden');
+
+  if(mode==='en'){
+    document.getElementById('c-label').textContent='次の単語の意味は？';
+    const cw=document.getElementById('c-word');
+    cw.innerHTML=w.en;
+    cw.className='card-word';
+    document.getElementById('kana-word').textContent=w.kana;
+    document.getElementById('c-ex-en').innerHTML=w.ex;
+    document.getElementById('kana-ex').textContent=w.ex_kana;
+    document.getElementById('c-ex-ja').textContent=w.ex_ja;
+    const am=document.getElementById('ans-main');
+    am.textContent=w.ja;
+    am.className='ans-main';
+    document.getElementById('ans-ex').textContent='';
+  } else {
+    document.getElementById('c-label').textContent='英語で言うと？';
+    const cw=document.getElementById('c-word');
+    cw.textContent=w.ja;
+    cw.className='card-word ja';
+    document.getElementById('kana-word').textContent=w.kana;
+    document.getElementById('c-ex-en').textContent=w.ex_ja;
+    document.getElementById('kana-ex').textContent=w.ex_kana;
+    document.getElementById('c-ex-ja').textContent='';
+    const am=document.getElementById('ans-main');
+    am.textContent=w.en;
+    am.className='ans-main en';
+    document.getElementById('ans-ex').innerHTML=w.ex;
+  }
+}
+
+function showAns(){
+  document.getElementById('ans-block').classList.remove('hidden');
+  document.getElementById('c-ex-ja').classList.remove('hidden');
+  document.getElementById('kana-word').classList.remove('hidden');
+  document.getElementById('kana-ex').classList.remove('hidden');
+  document.getElementById('show-row').classList.add('hidden');
+  document.getElementById('judge-row').classList.remove('hidden');
+}
+
+function judge(ok){
+  if(ok) okCount++;
+  idx++;
+  document.getElementById('ok').textContent=okCount;
+  document.getElementById('tot').textContent=idx;
+  document.getElementById('prog').style.width=Math.round(idx/words.length*100)+'%';
+  if(idx>=words.length){showResult();return;}
+  renderCard();
+}
+
+function showResult(){
+  document.getElementById('card').classList.add('hidden');
+  document.getElementById('show-row').classList.add('hidden');
+  document.getElementById('judge-row').classList.add('hidden');
+  document.getElementById('result').classList.remove('hidden');
+  const pct=Math.round(okCount/words.length*100);
+  document.getElementById('res-ok').textContent=okCount;
+  document.getElementById('res-tot').textContent=words.length;
+  document.getElementById('remaining').textContent='';
+  setTimeout(()=>{document.getElementById('res-fill').style.width=pct+'%';},100);
+  const msg=pct>=80?'すごい！よく覚えてたね！もう一度やってみよう。'
+           :pct>=50?'もう少し！苦手な単語をもう一度確認しよう。'
+           :'まだ覚えていない単語が多いよ。もう一度チャレンジ！';
+  document.getElementById('res-msg').textContent=msg;
+}
+
+function restart(){
+  words=[...DB[cat]].sort(()=>Math.random()-0.5);
+  idx=0; okCount=0;
+  document.getElementById('ok').textContent=0;
+  document.getElementById('tot').textContent=0;
+  document.getElementById('prog').style.width='0%';
+  document.getElementById('result').classList.add('hidden');
+  document.getElementById('card').classList.remove('hidden');
+  renderCard();
+}
+
+function nextCat(){
+  const i=CATS.findIndex(c=>c.id===cat);
+  startCat(CATS[(i+1)%CATS.length].id);
+}
+
+buildCats();
+startCat('daily');
+</script>
+</body>
+</html>
